@@ -16,6 +16,28 @@ interface Rating {
     | "effective performance";
 }
 
+interface ExerciseValues {
+  dailyExerciseHours: number[];
+  target: number;
+}
+
+const parseExerciseArguments = (args: string[]): ExerciseValues => {
+  if (args.length < 4) throw new Error("Not enough arguments");
+
+  const [, , ...values] = args;
+  const [target, ...exerciseValues] = values;
+
+  if (
+    exerciseValues.every((e) => !isNaN(Number(e))) &&
+    !isNaN(Number(target))
+  ) {
+    return {
+      dailyExerciseHours: exerciseValues.map((e) => Number(e)),
+      target: Number(target),
+    };
+  } else throw new Error("Provided values were not numbers!");
+};
+
 const calculateRating = (hours: number, target: number): Rating => {
   if (hours < target / 2) {
     return { rating: 1, ratingDescription: "poor performance" };
@@ -52,4 +74,13 @@ const calculateExercises = (
   };
 };
 
-console.info(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2));
+try {
+  const { dailyExerciseHours, target } = parseExerciseArguments(process.argv);
+  console.log(calculateExercises(dailyExerciseHours, target));
+} catch (error: unknown) {
+  let errorMessage = "Something went wrong.";
+  if (error instanceof Error) {
+    errorMessage += ` Error: ${error.message}`;
+  }
+  console.info(errorMessage);
+}
