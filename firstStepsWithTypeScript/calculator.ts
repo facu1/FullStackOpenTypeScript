@@ -1,8 +1,8 @@
-type Operation = "multiply" | "add" | "divide";
+export type Operation = "multiply" | "add" | "divide";
 
 type Result = number;
 
-const calculator = (a: number, b: number, op: Operation): Result => {
+export const calculator = (a: number, b: number, op: Operation): Result => {
   switch (op) {
     case "multiply":
       return a * b;
@@ -15,13 +15,3 @@ const calculator = (a: number, b: number, op: Operation): Result => {
       throw new Error("Operation is not multiply, add or divide!");
   }
 };
-
-try {
-  console.log(calculator(2, 4, "multiply"));
-} catch (error: unknown) {
-  let errorMessage = "Something went wrong";
-  if (error instanceof Error) {
-    errorMessage += ` Error: ${error.message}`;
-  }
-  console.log(errorMessage);
-}
