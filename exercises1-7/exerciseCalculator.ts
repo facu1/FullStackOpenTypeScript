@@ -21,12 +21,10 @@ interface ExerciseValues {
   target: number;
 }
 
-const parseExerciseArguments = (args: string[]): ExerciseValues => {
-  if (args.length < 4) throw new Error("Not enough arguments");
-
-  const [, , ...values] = args;
-  const [target, ...exerciseValues] = values;
-
+export const parseExerciseArguments = (
+  exerciseValues: string[],
+  target: string
+): ExerciseValues => {
   if (
     exerciseValues.every((e) => !isNaN(Number(e))) &&
     !isNaN(Number(target))
@@ -47,7 +45,7 @@ const calculateRating = (hours: number, target: number): Rating => {
   return { rating: 3, ratingDescription: "effective performance" };
 };
 
-const calculateExercises = (
+export const calculateExercises = (
   dailyExerciseHours: number[],
   target: number
 ): Result => {
@@ -74,13 +72,13 @@ const calculateExercises = (
   };
 };
 
-try {
-  const { dailyExerciseHours, target } = parseExerciseArguments(process.argv);
-  console.log(calculateExercises(dailyExerciseHours, target));
-} catch (error: unknown) {
-  let errorMessage = "Something went wrong.";
-  if (error instanceof Error) {
-    errorMessage += ` Error: ${error.message}`;
-  }
-  console.info(errorMessage);
-}
+// try {
+//   const { dailyExerciseHours, target } = parseExerciseArguments(process.argv);
+//   console.log(calculateExercises(dailyExerciseHours, target));
+// } catch (error: unknown) {
+//   let errorMessage = "Something went wrong.";
+//   if (error instanceof Error) {
+//     errorMessage += ` Error: ${error.message}`;
+//   }
+//   console.info(errorMessage);
+// }
