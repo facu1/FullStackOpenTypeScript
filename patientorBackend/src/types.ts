@@ -13,4 +13,14 @@ export interface Patient {
   occupation: string;
 }
 
+export type NewPatient = Omit<Patient, "id">;
+
+export type NewPatientFields = {
+  name: unknown;
+  dateOfBirth: unknown;
+  ssn: unknown;
+  gender: unknown;
+  occupation: unknown;
+};
+
 export type NonSensitivePatient = Omit<Patient, "ssn">;

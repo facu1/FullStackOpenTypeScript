@@ -1,0 +1,63 @@
+import { NewPatient, NewPatientFields } from "./types";
+
+const baseErrorMssg = "Incorrect or missing";
+
+const isString = (text: unknown): text is string => {
+  return typeof text === "string" || text instanceof String;
+};
+
+const isDate = (date: string): boolean => {
+  return Boolean(Date.parse(date));
+};
+
+const parseDateOB = (dateOB: unknown): string => {
+  if (!dateOB || !isString(dateOB) || !isDate(dateOB)) {
+    throw new Error(`${baseErrorMssg} date of birth: ${dateOB}`);
+  }
+  return dateOB;
+};
+
+const parseGender = (gender: unknown): string => {
+  if (!gender || !isString(gender)) {
+    throw new Error(`${baseErrorMssg} gender: ${gender}`);
+  }
+  return gender;
+};
+
+const parseName = (name: unknown): string => {
+  if (!name || !isString(name)) {
+    throw new Error(`${baseErrorMssg} name: ${name}`);
+  }
+  return name;
+};
+
+const parseOccupation = (occupation: unknown): string => {
+  if (!occupation || !isString(occupation)) {
+    throw new Error(`${baseErrorMssg} occupation: ${occupation}`);
+  }
+  return occupation;
+};
+
+const parseSsn = (ssn: unknown): string => {
+  if (!ssn || !isString(ssn)) {
+    throw new Error(`${baseErrorMssg} ssn: ${ssn}`);
+  }
+  return ssn;
+};
+
+export const toNewPatient = ({
+  dateOfBirth,
+  gender,
+  name,
+  occupation,
+  ssn,
+}: NewPatientFields): NewPatient => {
+  const newPatient: NewPatient = {
+    dateOfBirth: parseDateOB(dateOfBirth),
+    gender: parseGender(gender),
+    name: parseName(name),
+    occupation: parseOccupation(occupation),
+    ssn: parseSsn(ssn),
+  };
+  return newPatient;
+};
