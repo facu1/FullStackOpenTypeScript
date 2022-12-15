@@ -1,4 +1,4 @@
-import { NewPatient, NewPatientFields } from "./types";
+import { Gender, NewPatient, NewPatientFields } from "./types";
 
 const baseErrorMssg = "Incorrect or missing";
 
@@ -17,8 +17,14 @@ const parseDateOB = (dateOB: unknown): string => {
   return dateOB;
 };
 
-const parseGender = (gender: unknown): string => {
-  if (!gender || !isString(gender)) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const isGender = (gender: any): gender is Gender => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  return Object.values(Gender).includes(gender);
+};
+
+const parseGender = (gender: unknown): Gender => {
+  if (!gender || !isGender(gender)) {
     throw new Error(`${baseErrorMssg} gender: ${gender}`);
   }
   return gender;
