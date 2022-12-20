@@ -51,6 +51,13 @@ const parseSsn = (ssn: unknown): string => {
   return ssn;
 };
 
+export const parseId = (id: unknown): string => {
+  if (!id || !isString(id)) {
+    throw new Error(`${baseErrorMssg} id: ${id}`);
+  }
+  return id;
+};
+
 export const toNewPatient = ({
   dateOfBirth,
   gender,
