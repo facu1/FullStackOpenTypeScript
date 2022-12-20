@@ -11,12 +11,13 @@ import { useStateValue } from "../state";
 import { TableCell } from "@material-ui/core";
 import { TableRow } from "@material-ui/core";
 import { TableBody } from "@material-ui/core";
+import { Link } from "react-router-dom";
 
 const PatientListPage = () => {
   const [{ patients }, dispatch] = useStateValue();
 
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
-  const [error, setError] = React.useState<string>();
+  const [error, setError] = React.useState<string | undefined>();
 
   const openModal = (): void => setModalOpen(true);
 
@@ -36,7 +37,9 @@ const PatientListPage = () => {
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         console.error(e?.response?.data || "Unrecognized axios error");
-        setError(String(e?.response?.data?.error) || "Unrecognized axios error");
+        setError(
+          String(e?.response?.data?.error) || "Unrecognized axios error"
+        );
       } else {
         console.error("Unknown error", e);
         setError("Unknown error");
@@ -61,16 +64,21 @@ const PatientListPage = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {Object.values(patients).map((patient: Patient) => (
-            <TableRow key={patient.id}>
-              <TableCell>{patient.name}</TableCell>
-              <TableCell>{patient.gender}</TableCell>
-              <TableCell>{patient.occupation}</TableCell>
-              <TableCell>
-                <HealthRatingBar showText={false} rating={1} />
-              </TableCell>
-            </TableRow>
-          ))}
+          {Object.values(patients).map((patient: Patient | undefined) => {
+            if (!patient) return <div></div>;
+            return (
+              <TableRow key={patient.id}>
+                <TableCell>
+                  <Link to={`/${patient.id}`}>{patient.name}</Link>
+                </TableCell>
+                <TableCell>{patient.gender}</TableCell>
+                <TableCell>{patient.occupation}</TableCell>
+                <TableCell>
+                  <HealthRatingBar showText={false} rating={1} />
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
       <AddPatientModal

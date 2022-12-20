@@ -9,20 +9,26 @@ import { Patient } from "./types";
 
 import PatientListPage from "./PatientListPage";
 import { Typography } from "@material-ui/core";
+import PatientInfoPage from "./PatientInfoPage";
 
 const App = () => {
   const [, dispatch] = useStateValue();
   React.useEffect(() => {
-    void axios.get<void>(`${apiBaseUrl}/ping`);
+    // void axios.get<void>(`${apiBaseUrl}/ping`);
 
     const fetchPatientList = async () => {
       try {
-        const { data: patientListFromApi } = await axios.get<Patient[]>(
+        const { data: patients } = await axios.get<Patient[]>(
           `${apiBaseUrl}/patients`
         );
-        dispatch({ type: "SET_PATIENT_LIST", payload: patientListFromApi });
-      } catch (e) {
-        console.error(e);
+        dispatch({ type: "SET_PATIENT_LIST", payload: patients });
+      } catch (error: unknown) {
+        let errorMessage = "Something went wrong.";
+        if (axios.isAxiosError(error) && error.response) {
+          // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+          errorMessage += " Error: " + error.response.data.message;
+        }
+        console.error(errorMessage);
       }
     };
     void fetchPatientList();
@@ -41,6 +47,7 @@ const App = () => {
           <Divider hidden />
           <Routes>
             <Route path="/" element={<PatientListPage />} />
+            <Route path="/:id" element={<PatientInfoPage />} />
           </Routes>
         </Container>
       </Router>
