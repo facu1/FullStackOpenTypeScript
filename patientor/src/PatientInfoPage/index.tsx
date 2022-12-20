@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Patient } from "../types";
 import { apiBaseUrl } from "../constants";
-import { useStateValue } from "../state";
+import { updatePatient, useStateValue } from "../state";
 
 const PatientInfoPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,7 +17,7 @@ const PatientInfoPage = () => {
         const { data: patient } = await axios.get<Patient>(
           `${apiBaseUrl}/patients/${id}`
         );
-        dispatch({ type: "UPDATE_PATIENT", payload: patient });
+        dispatch(updatePatient(patient));
       } catch (error: unknown) {
         let errorMessage = "Something went wrong.";
         if (error instanceof Error) {
