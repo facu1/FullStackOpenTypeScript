@@ -8,29 +8,34 @@ import { updatePatient, useStateValue } from "../state";
 
 const PatientInfoPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [{ patients }, dispatch] = useStateValue();
+  const [{ patients, diagnoses }, dispatch] = useStateValue();
   const patient = Object.values(patients).find((patient) => patient?.id === id);
 
   useEffect(() => {
-    const fetchPatient = async (id: string) => {
-      try {
-        const { data: patient } = await axios.get<Patient>(
-          `${apiBaseUrl}/patients/${id}`
-        );
-        dispatch(updatePatient(patient));
-      } catch (error: unknown) {
-        let errorMessage = "Something went wrong.";
-        if (error instanceof Error) {
-          errorMessage += ` Error: ${error.message}`;
+    if (!!Object.keys(patients).length && id && !patient?.ssn) {
+      const fetchPatient = async (id: string) => {
+        try {
+          const { data: patient } = await axios.get<Patient>(
+            `${apiBaseUrl}/patients/${id}`
+          );
+          dispatch(updatePatient(patient));
+        } catch (error: unknown) {
+          let errorMessage = "Something went wrong.";
+          if (error instanceof Error) {
+            errorMessage += ` Error: ${error.message}`;
+          }
+          console.error(errorMessage);
         }
-        console.error(errorMessage);
-      }
-    };
+      };
 
-    if (id && !patient?.ssn) void fetchPatient(id);
-  }, []);
+      void fetchPatient(id);
+    }
+  }, [patients]);
 
   if (!patient) return <h1>Patient not Found</h1>;
+
+  const diagnosisDesc = (diagnosisCode: string): string | undefined =>
+    diagnoses?.find(({ code }) => code === diagnosisCode)?.name;
 
   return (
     <>
@@ -47,14 +52,16 @@ const PatientInfoPage = () => {
       <h3>
         <strong>entries</strong>
       </h3>
-      {patient.entries?.map((entry) => (
-        <div key={entry.id}>
+      {patient.entries?.map(({ id, date, description, diagnosisCodes }) => (
+        <div key={id}>
           <p>
-            {entry.date} {entry.description}
+            {date} {description}
           </p>
           <ul>
-            {entry.diagnosisCodes?.map((diagnosisCode) => (
-              <li key={diagnosisCode}>{diagnosisCode}</li>
+            {diagnosisCodes?.map((diagnosisCode) => (
+              <li key={`${id}_${diagnosisCode}`}>
+                {diagnosisCode} {diagnosisDesc(diagnosisCode)}
+              </li>
             ))}
           </ul>
         </div>
