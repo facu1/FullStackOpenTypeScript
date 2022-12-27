@@ -21,7 +21,6 @@ const getNonSensitivePatients = (): PublicPatient[] => {
     dateOfBirth,
     gender,
     occupation,
-    entries: [],
   }));
 };
 
