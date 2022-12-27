@@ -1,9 +1,9 @@
 import express from "express";
-import diagnosService from "../services/diagnoses";
+import diagnosesService from "../services/diagnoses";
 const diagnoseRouter = express.Router();
 
 diagnoseRouter.get("/", (_req, res) => {
-  res.send(diagnosService.getDiagnoses());
+  res.send(diagnosesService.getDiagnoses());
 });
 
 export default diagnoseRouter;
