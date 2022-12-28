@@ -2,13 +2,18 @@ import { Female as FemaleIcon, Male as MaleIcon } from "@mui/icons-material";
 import axios from "axios";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Patient } from "../types";
+import { Entry, Patient } from "../types";
 import { apiBaseUrl } from "../constants";
 import { updatePatient, useStateValue } from "../state";
+import Hospital from "../components/Hospital";
+import OccupationalHealthcare from "../components/OccupationalHealthcare";
+import HealthCheck from "../components/HealthCheck";
+import { assertNever } from "../utils";
+import { Button } from "@material-ui/core";
 
 const PatientInfoPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [{ patients, diagnoses }, dispatch] = useStateValue();
+  const [{ patients }, dispatch] = useStateValue();
   const patient = Object.values(patients).find((patient) => patient?.id === id);
 
   useEffect(() => {
@@ -34,8 +39,18 @@ const PatientInfoPage = () => {
 
   if (!patient) return <h1>Patient not Found</h1>;
 
-  const diagnosisDesc = (diagnosisCode: string): string | undefined =>
-    diagnoses?.find(({ code }) => code === diagnosisCode)?.name;
+  const EntryDetails: React.FC<Entry> = (entry) => {
+    switch (entry.type) {
+      case "Hospital":
+        return <Hospital key={entry.id} {...entry} />;
+      case "OccupationalHealthcare":
+        return <OccupationalHealthcare key={entry.id} {...entry} />;
+      case "HealthCheck":
+        return <HealthCheck key={entry.id} {...entry} />;
+      default:
+        return assertNever(entry);
+    }
+  };
 
   return (
     <>
@@ -52,20 +67,10 @@ const PatientInfoPage = () => {
       <h3>
         <strong>entries</strong>
       </h3>
-      {patient.entries?.map(({ id, date, description, diagnosisCodes }) => (
-        <div key={id}>
-          <p>
-            {date} {description}
-          </p>
-          <ul>
-            {diagnosisCodes?.map((diagnosisCode) => (
-              <li key={`${id}_${diagnosisCode}`}>
-                {diagnosisCode} {diagnosisDesc(diagnosisCode)}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      {patient.entries?.map((entry) => EntryDetails(entry))}
+      <Button color="primary" variant="contained">
+        ADD NEW ENTRY
+      </Button>
     </>
   );
 };
