@@ -24,8 +24,7 @@ const AddEntryForm = ({ onSubmit, onCancel }: AddEntryFormProps) => {
   };
 
   const isDate = (date: string): boolean => {
-    // return Boolean(Date.parse(date));
-    return !!date;
+    return Boolean(Date.parse(date));
   };
 
   const formValidate = (values: EntryFormValues) => {
