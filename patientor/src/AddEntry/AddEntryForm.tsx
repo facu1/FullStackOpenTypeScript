@@ -78,13 +78,13 @@ const AddEntryForm = ({ onSubmit, onCancel }: AddEntryFormProps) => {
             <Typography variant="h6">Hospital</Typography>
             <Field
               label="Discharge criteria"
-              placeholder="Discharge criteria"
+              placeholder="Criteria"
               name="dischargeCriteria"
               component={TextField}
             />
             <Field
               label="Discharge date"
-              placeholder="Discharge date"
+              placeholder="YYYY-MM-DD"
               name="dischargeDate"
               component={TextField}
             />
