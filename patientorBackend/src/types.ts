@@ -1,8 +1,12 @@
+// Diagnosis
+
 export interface Diagnosis {
   code: string;
   name: string;
   latin?: string;
 }
+
+// Entry
 
 interface BaseEntry {
   id: string;
@@ -12,48 +16,90 @@ interface BaseEntry {
   diagnosisCodes?: Array<Diagnosis["code"]>;
 }
 
-enum HealthCheckRating {
+export enum HealthCheckRating {
   "Healthy" = 0,
   "LowRisk" = 1,
   "HighRisk" = 2,
   "CriticalRisk" = 3,
 }
 
-interface HealthCheckEntry extends BaseEntry {
+export interface HealthCheckEntry extends BaseEntry {
   type: "HealthCheck";
   healthCheckRating: HealthCheckRating;
 }
 
-interface SickLeave {
+export interface SickLeave {
   startDate: string;
   endDate: string;
 }
 
-interface OccupationalHealthcareEntry extends BaseEntry {
+export interface SickLeaveFields {
+  startDate: unknown;
+  endDate: unknown;
+}
+
+export interface OccupationalHealthcareEntry extends BaseEntry {
   type: "OccupationalHealthcare";
   employerName: string;
   sickLeave?: SickLeave;
 }
 
-interface Discharge {
+export interface Discharge {
   date: string;
   criteria: string;
 }
 
-interface HospitalEntry extends BaseEntry {
+export interface DischargeFields {
+  date: unknown;
+  criteria: unknown;
+}
+
+export interface HospitalEntry extends BaseEntry {
   type: "Hospital";
   discharge: Discharge;
 }
 
-type Entry = HospitalEntry | OccupationalHealthcareEntry | HealthCheckEntry;
+export type Entry =
+  | HospitalEntry
+  | OccupationalHealthcareEntry
+  | HealthCheckEntry;
 
 // Define special omit for unions
 type UnionOmit<T, K extends string | number | symbol> = T extends unknown
   ? Omit<T, K>
   : never;
 
-// Define Entry without the 'id' property
-export type EntryWithoutId = UnionOmit<Entry, "id">;
+export type NewEntry = UnionOmit<Entry, "id">;
+
+interface BaseEntryFields {
+  date: unknown;
+  specialist: unknown;
+  description: unknown;
+  diagnosisCodes?: unknown;
+}
+
+export interface HealthCheckEntryFields extends BaseEntryFields {
+  type: "HealthCheck";
+  healthCheckRating: unknown;
+}
+
+export interface OccupationalHealthcareEntryFields extends BaseEntryFields {
+  type: "OccupationalHealthcare";
+  employerName: unknown;
+  sickLeave?: unknown;
+}
+
+export interface HospitalEntryFields extends BaseEntryFields {
+  type: "Hospital";
+  discharge: unknown;
+}
+
+export type NewEntryFields =
+  | HealthCheckEntryFields
+  | OccupationalHealthcareEntryFields
+  | HospitalEntryFields;
+
+// Patient
 
 export enum Gender {
   Male = "male",
