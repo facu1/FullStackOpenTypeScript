@@ -143,6 +143,7 @@ const parseDiagnosisCodes = (
   else if (!isDiagnosisCodeArray(diagnosisCodes)) {
     throw new Error(`${baseErrorMssg} diagnosisCodes: ${diagnosisCodes}`);
   }
+  if (!diagnosisCodes.length) return undefined;
   return diagnosisCodes;
 };
 

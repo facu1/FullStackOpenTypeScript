@@ -17,8 +17,13 @@ const PatientInfoPage = () => {
   const [{ patients }, dispatch] = useStateValue();
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+
   const openModal = (): void => setModalOpen(true);
-  const closeModal = (): void => setModalOpen(false);
+  const closeModal = (): void => {
+    setModalOpen(false);
+    setError(undefined);
+  };
 
   const patient = Object.values(patients).find((patient) => patient?.id === id);
 
@@ -59,38 +64,49 @@ const PatientInfoPage = () => {
   };
 
   const submitNewEntry = async (values: EntryFormValues) => {
-    const {
-      date,
-      description,
-      dischargeCriteria,
-      dischargeDate,
-      specialist,
-      type,
-      diagnosisCodes,
-    } = values;
-    const newEntry: NewEntry = {
-      date,
-      description,
-      discharge: {
-        criteria: dischargeCriteria,
-        date: dischargeDate,
-      },
-      specialist,
-      type,
-      diagnosisCodes,
-    };
+    try {
+      const {
+        date,
+        description,
+        dischargeCriteria,
+        dischargeDate,
+        specialist,
+        type,
+        diagnosisCodes,
+      } = values;
+      const newEntry: NewEntry = {
+        date,
+        description,
+        discharge: {
+          criteria: dischargeCriteria,
+          date: dischargeDate,
+        },
+        specialist,
+        type,
+        diagnosisCodes,
+      };
 
-    const { data: entry } = await axios.post<Entry>(
-      `${apiBaseUrl}/patients/${patient.id}/entries`,
-      newEntry
-    );
+      const { data: entry } = await axios.post<Entry>(
+        `${apiBaseUrl}/patients/${patient.id}/entries`,
+        newEntry
+      );
 
-    const modifiedPatient: Patient = {
-      ...patient,
-      entries: patient.entries.concat(entry),
-    };
-    dispatch(updatePatient(modifiedPatient));
-    closeModal();
+      const modifiedPatient: Patient = {
+        ...patient,
+        entries: patient.entries.concat(entry),
+      };
+      dispatch(updatePatient(modifiedPatient));
+      closeModal();
+    } catch (error: unknown) {
+      let errorMessage = "";
+      if (axios.isAxiosError(error)) {
+        errorMessage += String(error.response?.data) || "Something went wrong.";
+      } else if (error instanceof Error) {
+        errorMessage += `Something went wrong. Error: ${error.message}`;
+      }
+      console.error(errorMessage);
+      setError(errorMessage);
+    }
   };
 
   return (
@@ -113,6 +129,7 @@ const PatientInfoPage = () => {
         modalOpen={modalOpen}
         onClose={closeModal}
         onSubmit={submitNewEntry}
+        error={error}
       />
       <Button variant="contained" onClick={openModal}>
         ADD NEW ENTRY
