@@ -7,7 +7,12 @@ import {
   TextField as TextFieldMUI,
   Typography,
 } from "@material-ui/core";
-import { Diagnosis, Gender } from "../types";
+import {
+  Diagnosis,
+  EntryFormValues,
+  Gender,
+  HealthCheckRating,
+} from "../types";
 import { InputLabel } from "@material-ui/core";
 import Input from "@material-ui/core/Input";
 
@@ -132,6 +137,117 @@ export const DiagnosisSelection = ({
         multiple
         value={selectedDiagnoses}
         onChange={(e) => onChange(e.target.value as string[])}
+        input={<Input />}
+      >
+        {stateOptions.map((option) => (
+          <MenuItem key={option.key} value={option.value}>
+            {option.text}
+          </MenuItem>
+        ))}
+      </Select>
+      <ErrorMessage name={field} />
+    </FormControl>
+  );
+};
+
+export const TypeSelection = ({
+  types,
+  setFieldTouched,
+  setValues,
+  values,
+}: {
+  types: string[];
+  setFieldTouched: FormikProps<{ type: string }>["setFieldTouched"];
+  setValues: FormikProps<EntryFormValues>["setValues"];
+  values: EntryFormValues;
+}) => {
+  const [selectedType, setSelectedType] = useState<string>(types[0]);
+  const field = "type";
+  const onChange = (data: string) => {
+    setSelectedType(data);
+    setFieldTouched(field, true);
+    switch (data) {
+      case "Hospital": {
+        setValues({
+          ...values,
+          type: "Hospital",
+          dischargeCriteria: "",
+          dischargeDate: "",
+        });
+        break;
+      }
+      case "OccupationalHealthcare":
+        setValues({
+          ...values,
+          type: "OccupationalHealthcare",
+          employerName: "",
+          sickLeaveStartDate: "",
+          sickLeaveEndDate: "",
+        });
+        break;
+      case "HealthCheck":
+        setValues({
+          ...values,
+          type: "HealthCheck",
+          healthCheckRating: 0,
+        });
+    }
+  };
+
+  const stateOptions = types.map((type) => ({
+    key: type,
+    text: type,
+    value: type,
+  }));
+
+  return (
+    <FormControl style={{ width: 552, marginBottom: "30px" }}>
+      <InputLabel>Entry Type</InputLabel>
+      <Select
+        value={selectedType}
+        onChange={(e) => onChange(e.target.value as string)}
+        input={<Input />}
+      >
+        {stateOptions.map((option) => (
+          <MenuItem key={option.key} value={option.value}>
+            {option.text}
+          </MenuItem>
+        ))}
+      </Select>
+      <ErrorMessage name={field} />
+    </FormControl>
+  );
+};
+
+export const HealthCheckRatingSelection = ({
+  healthChecks,
+  setFieldValue,
+  setFieldTouched,
+}: {
+  healthChecks: Array<string | HealthCheckRating>;
+  setFieldValue: FormikProps<{ healthCheck: number }>["setFieldValue"];
+  setFieldTouched: FormikProps<{ healthCheck: number }>["setFieldTouched"];
+}) => {
+  const [selectedHealthChecks, setSelectedHealthChecks] = useState<number>(0);
+  const field = "healthCheckRating";
+  const onChange = (data: number) => {
+    setSelectedHealthChecks(data);
+    setFieldTouched(field, true);
+    setFieldValue(field, data);
+  };
+
+  const stateOptions = healthChecks.map((healthCheck) => ({
+    key: healthCheck,
+    text: healthCheck,
+    value: healthCheck,
+  }));
+
+  return (
+    <FormControl style={{ width: 552, marginBottom: "30px" }}>
+      <InputLabel>Health Check Rating</InputLabel>
+      <Select
+        value={selectedHealthChecks}
+        onChange={(e) => onChange(e.target.value as number)}
         input={<Input />}
       >
         {stateOptions.map((option) => (

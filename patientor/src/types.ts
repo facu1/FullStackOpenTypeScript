@@ -57,15 +57,31 @@ type UnionOmit<T, K extends string | number | symbol> = T extends unknown
 
 export type NewEntry = UnionOmit<Entry, "id">;
 
-export interface EntryFormValues {
-  date: string;
-  specialist: string;
-  description: string;
-  diagnosisCodes?: Array<Diagnosis["code"]>;
-  type: "Hospital";
-  dischargeDate: string;
-  dischargeCriteria: string;
+type BaseEntryFormValues = UnionOmit<BaseEntry, "id">;
+
+export interface HealthCheckEntryFormValues extends BaseEntryFormValues {
+  type: "HealthCheck";
+  healthCheckRating: HealthCheckRating;
 }
+
+export interface OccupationalHealthcareEntryFormValues
+  extends BaseEntryFormValues {
+  type: "OccupationalHealthcare";
+  employerName: string;
+  sickLeaveStartDate?: string;
+  sickLeaveEndDate?: string;
+}
+
+export interface HospitalEntryFormValues extends BaseEntryFormValues {
+  type: "Hospital";
+  dischargeCriteria: string;
+  dischargeDate: string;
+}
+
+export type EntryFormValues =
+  | HealthCheckEntryFormValues
+  | OccupationalHealthcareEntryFormValues
+  | HospitalEntryFormValues;
 
 export enum Gender {
   Male = "male",

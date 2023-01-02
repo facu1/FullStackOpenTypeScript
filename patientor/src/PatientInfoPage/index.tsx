@@ -63,28 +63,64 @@ const PatientInfoPage = () => {
     }
   };
 
+  const entryValuesByType = (values: EntryFormValues): NewEntry => {
+    const { date, description, specialist, diagnosisCodes } = values;
+    switch (values.type) {
+      case "Hospital": {
+        const { type, dischargeCriteria, dischargeDate } = values;
+        const newEntry: NewEntry = {
+          date,
+          description,
+          discharge: {
+            criteria: dischargeCriteria,
+            date: dischargeDate,
+          },
+          specialist,
+          type,
+          diagnosisCodes,
+        };
+        return newEntry;
+      }
+      case "OccupationalHealthcare": {
+        const { type, employerName, sickLeaveStartDate, sickLeaveEndDate } =
+          values;
+        const newEntry: NewEntry = {
+          date,
+          description,
+          employerName,
+          sickLeave:
+            !sickLeaveStartDate || !sickLeaveEndDate
+              ? undefined
+              : {
+                  startDate: sickLeaveStartDate,
+                  endDate: sickLeaveEndDate,
+                },
+          specialist,
+          type,
+          diagnosisCodes,
+        };
+        return newEntry;
+      }
+      case "HealthCheck": {
+        const { healthCheckRating, type } = values;
+        const newEntry: NewEntry = {
+          date,
+          description,
+          healthCheckRating,
+          specialist,
+          type,
+          diagnosisCodes,
+        };
+        return newEntry;
+      }
+      default:
+        return assertNever(values);
+    }
+  };
+
   const submitNewEntry = async (values: EntryFormValues) => {
     try {
-      const {
-        date,
-        description,
-        dischargeCriteria,
-        dischargeDate,
-        specialist,
-        type,
-        diagnosisCodes,
-      } = values;
-      const newEntry: NewEntry = {
-        date,
-        description,
-        discharge: {
-          criteria: dischargeCriteria,
-          date: dischargeDate,
-        },
-        specialist,
-        type,
-        diagnosisCodes,
-      };
+      const newEntry = entryValuesByType(values);
 
       const { data: entry } = await axios.post<Entry>(
         `${apiBaseUrl}/patients/${patient.id}/entries`,

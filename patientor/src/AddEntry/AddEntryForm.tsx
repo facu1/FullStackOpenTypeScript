@@ -1,9 +1,13 @@
 import { Field, Form, Formik } from "formik";
-import { EntryFormValues } from "../types";
-import { DiagnosisSelection, TextField } from "../AddPatientModal/FormField";
+import { EntryFormValues, HealthCheckRating } from "../types";
+import {
+  DiagnosisSelection,
+  HealthCheckRatingSelection,
+  TextField,
+  TypeSelection,
+} from "../AddPatientModal/FormField";
 import { useStateValue } from "../state";
 import { Button, Grid } from "@mui/material";
-import { Typography } from "@material-ui/core";
 
 interface AddEntryFormProps {
   onSubmit: (values: EntryFormValues) => void;
@@ -18,9 +22,9 @@ const AddEntryForm = ({ onSubmit, onCancel }: AddEntryFormProps) => {
     description: "",
     specialist: "",
     diagnosisCodes: undefined,
+    type: "Hospital",
     dischargeCriteria: "",
     dischargeDate: "",
-    type: "Hospital",
   };
 
   const isDate = (date: string): boolean => {
@@ -35,12 +39,107 @@ const AddEntryForm = ({ onSubmit, onCancel }: AddEntryFormProps) => {
     else if (!isDate(values.date)) errors.date = "Invalid Date";
     if (!values.description) errors.description = requiredError;
     if (!values.specialist) errors.specialist = requiredError;
-    if (!values.dischargeCriteria) errors.dischargeCriteria = requiredError;
-    if (!values.dischargeDate) errors.dischargeDate = requiredError;
-    else if (!isDate(values.dischargeDate))
-      errors.dischargeDate = "Invalid Date";
+
+    switch (values.type) {
+      case "Hospital": {
+        if (!values.dischargeCriteria) errors.dischargeCriteria = requiredError;
+        if (!values.dischargeDate) errors.dischargeDate = requiredError;
+        else if (!isDate(values.dischargeDate))
+          errors.dischargeDate = "Invalid Date";
+        break;
+      }
+      case "OccupationalHealthcare": {
+        if (!values.employerName) errors.employerName = requiredError;
+        if (values.sickLeaveStartDate || values.sickLeaveEndDate) {
+          if (!values.sickLeaveStartDate)
+            errors.sickLeaveStartDate = requiredError;
+          else if (!isDate(values.sickLeaveStartDate))
+            errors.sickLeaveStartDate = "Invalid Date";
+
+          if (!values.sickLeaveEndDate) errors.sickLeaveEndDate = requiredError;
+          else if (!isDate(values.sickLeaveEndDate))
+            errors.sickLeaveEndDate = "Invalid Date";
+        }
+        break;
+      }
+      case "HealthCheck": {
+        if (typeof values.healthCheckRating !== "number")
+          errors.healthCheckRating = requiredError;
+      }
+    }
 
     return errors;
+  };
+
+  const fieldsByEntryType = (
+    entry: EntryFormValues,
+    setFieldTouched: (
+      field: string,
+      isTouched?: boolean | undefined,
+      shouldValidate?: boolean | undefined
+    ) => void,
+    setFieldValue: (
+      field: string,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      value: any,
+      shouldValidate?: boolean | undefined
+    ) => void
+  ) => {
+    switch (entry.type) {
+      case "Hospital":
+        return (
+          <>
+            <Field
+              label="Discharge criteria"
+              placeholder="Criteria"
+              name="dischargeCriteria"
+              component={TextField}
+            />
+            <Field
+              key="dischargeDate"
+              label="Discharge date"
+              placeholder="YYYY-MM-DD"
+              name="dischargeDate"
+              component={TextField}
+            />
+          </>
+        );
+      case "OccupationalHealthcare":
+        return (
+          <>
+            <Field
+              label="Employer Name"
+              placeholder="Name"
+              name="employerName"
+              component={TextField}
+            />
+            <Field
+              key="sickLeaveStartDate"
+              label="Sick Leave start date"
+              placeholder="YYYY-MM-DD"
+              name="sickLeaveStartDate"
+              component={TextField}
+            />
+            <Field
+              key="sickLeaveEndDate"
+              label="Sick leave end date"
+              placeholder="YYYY-MM-DD"
+              name="sickLeaveEndDate"
+              component={TextField}
+            />
+          </>
+        );
+      case "HealthCheck":
+        return (
+          <HealthCheckRatingSelection
+            healthChecks={Object.values(HealthCheckRating).filter(
+              (value) => typeof value === "number"
+            )}
+            setFieldTouched={setFieldTouched}
+            setFieldValue={setFieldValue}
+          ></HealthCheckRatingSelection>
+        );
+    }
   };
 
   return (
@@ -49,7 +148,14 @@ const AddEntryForm = ({ onSubmit, onCancel }: AddEntryFormProps) => {
       onSubmit={onSubmit}
       validate={formValidate}
     >
-      {({ isValid, dirty, setFieldValue, setFieldTouched }) => {
+      {({
+        isValid,
+        dirty,
+        setFieldValue,
+        setFieldTouched,
+        values,
+        setValues,
+      }) => {
         return (
           <Form className="form ui">
             <Field
@@ -75,19 +181,18 @@ const AddEntryForm = ({ onSubmit, onCancel }: AddEntryFormProps) => {
               setFieldValue={setFieldValue}
               diagnoses={Object.values(diagnoses)}
             />
-            <Typography variant="h6">Hospital</Typography>
-            <Field
-              label="Discharge criteria"
-              placeholder="Criteria"
-              name="dischargeCriteria"
-              component={TextField}
+            <TypeSelection
+              setFieldTouched={setFieldTouched}
+              setValues={
+                setValues as (
+                  values: React.SetStateAction<EntryFormValues>,
+                  shouldValidate?: boolean | undefined
+                ) => void
+              }
+              values={values}
+              types={["Hospital", "OccupationalHealthcare", "HealthCheck"]}
             />
-            <Field
-              label="Discharge date"
-              placeholder="YYYY-MM-DD"
-              name="dischargeDate"
-              component={TextField}
-            />
+            {fieldsByEntryType(values, setFieldTouched, setFieldValue)}
             <Grid>
               <Grid item>
                 <Button
